@@ -243,8 +243,14 @@ NetworkInterface::wakeup()
         }
 
         if (!m_trace_injection_queue.empty()) {
-            int vnet = m_trace_injection_queue.front()->get_vnet();
-            int vc = calculateVC(vnet);
+            flit *front = m_trace_injection_queue.front();
+            int vnet = front->get_vnet();
+            // chess: a packet's body and tail flits follow its head's
+            // virtual channel; a head (or a single-flit packet) takes a
+            // free one
+            int vc = (front->get_type() == BODY_ ||
+                      front->get_type() == TAIL_) ?
+                m_trace_open_vc : calculateVC(vnet);
             DPRINTF(NetworkTrace, "NI %d connected to router %s "
             "trying to injected flit %s in VC %d\n", m_id, oss.str(), *(m_trace_injection_queue.front()), vc);
             if (vc != -1) {
@@ -481,6 +487,11 @@ NetworkInterface::injectTraceFlit(int vnet, int vc)
     niOutVcs[vc].insert(t_flit);
     m_ni_out_vcs_enqueue_time[vc] = curTick();
     outVcState[vc].setState(ACTIVE_, curTick());
+    // chess: keep a multi-flit packet's channel open until its tail
+    if (t_flit->get_type() == HEAD_)
+        m_trace_open_vc = vc;
+    else if (t_flit->get_type() == TAIL_)
+        m_trace_open_vc = -1;
 
     // incremenet packets if its tail or head_tail flit
     if (t_flit->get_type() == TAIL_ || t_flit->get_type() == HEAD_TAIL_){

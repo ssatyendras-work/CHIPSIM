@@ -297,6 +297,10 @@ class NetworkInterface : public ClockedObject, public Consumer
 
     std::queue<flit *> m_trace_injection_queue;
 
+    // chess: the channel of the multi-flit packet being injected
+
+    int m_trace_open_vc = -1;
+
     std::queue<NetworkTraceRecord> m_trace_record_queue;
 
     // The Message buffers that takes messages from the protocol
