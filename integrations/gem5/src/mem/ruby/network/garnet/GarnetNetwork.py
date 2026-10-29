@@ -46,6 +46,11 @@ class GarnetNetwork(RubyNetwork):
     vcs_per_vnet = Param.UInt32(4, "virtual channels per virtual network")
     buffers_per_data_vc = Param.UInt32(4, "buffers per data virtual channel")
     buffers_per_ctrl_vc = Param.UInt32(1, "buffers per ctrl virtual channel")
+    # chess: a network trace record's flits travel as packets of this many
+    # flits (head, body, tail); 1 keeps CHIPSIM's single-flit packets.
+    trace_packet_flits = Param.UInt32(
+        1, "flits per packet of a network trace record"
+    )
     routing_algorithm = Param.Int(0, "0: Weight-based Table, 1: XY, 2: Custom")
     enable_fault_model = Param.Bool(False, "enable network fault model")
     fault_model = Param.FaultModel(NULL, "network fault model")

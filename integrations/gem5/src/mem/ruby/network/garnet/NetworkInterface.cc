@@ -32,6 +32,7 @@
 
 #include "mem/ruby/network/garnet/NetworkInterface.hh"
 
+#include <algorithm>
 #include <cassert>
 #include <cmath>
 
@@ -430,24 +431,24 @@ NetworkInterface::transferTraceRecordsToInjectionQueue()
         }
     }
 
-    // now create flits in round-robin order, this would be two nested loops
-    // outer loop run over max num_flits from all records
-    // inner loop runs over all records and create flit if num_flits > outer
-    for (int i = 0; i < max_num_flits; i++) {
+    // now create packets in round-robin order over the records, one
+    // packet of each record per round; a packet's flits stay together.
+    // chess: a packet holds trace_packet_flits flits (head, body, tail);
+    // with 1 every flit is its own HEAD_TAIL_ packet, as CHIPSIM had it.
+    const int P = std::max<int>(1, m_net_ptr->getTracePacketFlits());
+    for (int i = 0; i < max_num_flits; i += P) {
         for (int r = 0; r < same_time_records.size(); r++) {
-            if (i < same_time_records[r].num_flits) {
-                // Each flit is a complete packet (HEAD_TAIL_ type)
-                // Set last_flit to true for phase tracking
-                routes[r].last_flit = (i == same_time_records[r].num_flits - 1);
-
-                // Get a unique packet ID for each flit
-                int packet_id = m_net_ptr->getNextPacketID();
-                
-                // Create a single-flit packet (num_flits = 1)
-                // This ensures the flit type is HEAD_TAIL_
-                flit *fl = new flit(packet_id, 0, -1, same_time_records[r].vnet,
-                    routes[r], 1, msg_ptr, oPort->bitWidth(),
-                    oPort->bitWidth(), curTick());
+            const int n = same_time_records[r].num_flits;
+            if (i >= n)
+                continue;
+            const int size = std::min(P, n - i);
+            int packet_id = m_net_ptr->getNextPacketID();
+            for (int j = 0; j < size; j++) {
+                // the record's last flit closes its phase
+                routes[r].last_flit = (i + j == n - 1);
+                flit *fl = new flit(packet_id, j, -1,
+                    same_time_records[r].vnet, routes[r], size, msg_ptr,
+                    oPort->bitWidth(), oPort->bitWidth(), curTick());
                 fl->set_enqueue_time(curTick());
                 m_trace_injection_queue.push(fl);
             }

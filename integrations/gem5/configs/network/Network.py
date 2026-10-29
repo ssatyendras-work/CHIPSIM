@@ -99,6 +99,14 @@ def define_options(parser):
         help="width in bits for all links inside garnet.",
     )
     parser.add_argument(
+        "--trace-packet-flits",
+        action="store",
+        type=int,
+        default=1,
+        help="""chess: flits per packet of a network trace record
+            (1: every flit its own packet, CHIPSIM's default).""",
+    )
+    parser.add_argument(
         "--vcs-per-vnet",
         action="store",
         type=int,
@@ -185,6 +193,7 @@ def init_network(options, network, InterfaceClass):
         #network.vcs_per_vnet = 16*options.vcs_per_vnet
         network.vcs_per_vnet = options.vcs_per_vnet
         network.ni_flit_size = options.link_width_bits / 8
+        network.trace_packet_flits = getattr(options, "trace_packet_flits", 1)
         network.routing_algorithm = options.routing_algorithm
         network.garnet_deadlock_threshold = options.garnet_deadlock_threshold
         network.trace_enable  = options.network_trace_enable

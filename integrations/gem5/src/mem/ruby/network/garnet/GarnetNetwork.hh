@@ -97,6 +97,8 @@ class GarnetNetwork : public Network, public Consumer
 
     // for network
     uint32_t getNiFlitSize() const { return m_ni_flit_size; }
+    // chess: flits per packet of a network trace record
+    uint32_t getTracePacketFlits() const { return m_trace_packet_flits; }
     uint32_t getBuffersPerDataVC() { return m_buffers_per_data_vc; }
     uint32_t getBuffersPerCtrlVC() { return m_buffers_per_ctrl_vc; }
     int getRoutingAlgorithm() const { return m_routing_algorithm; }
@@ -225,6 +227,7 @@ class GarnetNetwork : public Network, public Consumer
     int m_num_rows;
     int m_num_cols;
     uint32_t m_ni_flit_size;
+    uint32_t m_trace_packet_flits;
     uint32_t m_max_vcs_per_vnet;
     uint32_t m_buffers_per_ctrl_vc;
     uint32_t m_buffers_per_data_vc;
