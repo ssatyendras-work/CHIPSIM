@@ -378,9 +378,9 @@ GarnetNetwork::wakeup()
 }
 
 void
-GarnetNetwork::increment_trace_flits_received()
+GarnetNetwork::increment_trace_flits_received(int n)
 {
-    trace_num_flits_received++;
+    trace_num_flits_received += n;
 
     DPRINTF(NetworkTrace, "Num flits injected = %d, Num flits received = %d\n",
         trace_num_flits_injected, trace_num_flits_received);

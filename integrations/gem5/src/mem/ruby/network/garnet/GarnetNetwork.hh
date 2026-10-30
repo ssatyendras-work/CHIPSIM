@@ -109,7 +109,8 @@ class GarnetNetwork : public Network, public Consumer
     bool isTraceEnabled() const { return m_trace_enable; }
     std::string getTraceFilename() const { return m_trace_filename; }
 
-    void increment_trace_flits_received();
+    // chess: a traced packet's tail counts all its flits (n)
+    void increment_trace_flits_received(int n = 1);
 
     // Internal configuration
     bool isVNetOrdered(int vnet) const { return m_ordered[vnet]; }

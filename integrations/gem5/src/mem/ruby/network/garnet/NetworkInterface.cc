@@ -290,7 +290,9 @@ NetworkInterface::wakeup()
                         outNode_ptr[vnet]->enqueue(t_flit->get_msg_ptr(), curTime,
                                                cyclesToTicks(Cycles(1)));
                     } else {
-                        m_net_ptr->increment_trace_flits_received();
+                        // chess: the tail stands for its packet's flits
+                        m_net_ptr->increment_trace_flits_received(
+                            t_flit->get_size());
                     }
 
                     // Simply send a credit back since we are not buffering
