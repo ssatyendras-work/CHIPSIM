@@ -454,9 +454,11 @@ NetworkInterface::transferTraceRecordsToInjectionQueue()
             for (int j = 0; j < size; j++) {
                 // the record's last flit closes its phase
                 routes[r].last_flit = (i + j == n - 1);
+                // the message size is the whole packet's, which a
+                // serializer on a narrower link splits into its flits
                 flit *fl = new flit(packet_id, j, -1,
                     same_time_records[r].vnet, routes[r], size, msg_ptr,
-                    oPort->bitWidth(), oPort->bitWidth(), curTick());
+                    size * oPort->bitWidth(), oPort->bitWidth(), curTick());
                 fl->set_enqueue_time(curTick());
                 m_trace_injection_queue.push(fl);
             }
